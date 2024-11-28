@@ -35,3 +35,5 @@ class PaymentService {
     return prices[accountType] || 0;
   }
 }
+
+module.exports = PaymentService;
