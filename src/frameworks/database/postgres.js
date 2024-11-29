@@ -1,6 +1,6 @@
 const { Sequelize } = require("sequelize");
-const config = require("../../config/config");
 const logger = require("../logger/logger");
+require("dotenv").config();
 
 class DatabaseConnection {
   constructor() {
@@ -11,28 +11,25 @@ class DatabaseConnection {
   async connect() {
     try {
       const env = process.env.NODE_ENV || "development";
-      const dbConfig = config.db[env];
+      const isProduction = env === "production";
+      const databaseUrl = process.env.DATABASE_URL;
 
-      this.sequelize = new Sequelize({
-        dialect: dbConfig.dialect,
-        host: dbConfig.host,
-        port: dbConfig.port,
-        username: dbConfig.username,
-        password: dbConfig.password,
-        database: dbConfig.database,
+      // Initialize Sequelize instance
+      this.sequelize = new Sequelize(databaseUrl, {
+        dialect: "postgres",
+        protocol: "postgres",
         logging: (msg) => logger.debug(msg),
-        pool: dbConfig.pool,
-        dialectOptions: {
-          ssl:
-            env === "production"
-              ? {
-                  require: true,
-                  rejectUnauthorized: false,
-                }
-              : false,
-        },
+        dialectOptions: isProduction
+          ? {
+              ssl: {
+                require: true,
+                rejectUnauthorized: false, // Needed for Railway SSL support
+              },
+            }
+          : {},
       });
 
+      // Authenticate with the database
       await this.sequelize.authenticate();
       this.isConnected = true;
       logger.info("Database connection established successfully.");
