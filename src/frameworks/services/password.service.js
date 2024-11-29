@@ -1,13 +1,21 @@
 const bcrypt = require("bcrypt");
+const bcryptjs = require("bcryptjs");
 const config = require("../../config/config");
 
 class PasswordService {
-  async hashPassword(password) {
-    return bcrypt.hash(password, config.bcrypt.saltRounds);
+  hashPassword(password) {
+    return bcryptjs.hashSync(password, config.bcrypt.saltRounds);
   }
 
-  async comparePassword(password, hashedPassword) {
-    return bcrypt.compare(password, hashedPassword);
+  async comparePassword(plainPassword, hashedPassword) {
+    try {
+      // Explicitly use async comparison
+      const isMatch = await bcryptjs.compareSync(plainPassword, hashedPassword);
+      return isMatch;
+    } catch (error) {
+      console.error("Password comparison error:", error);
+      return false;
+    }
   }
 }
 
