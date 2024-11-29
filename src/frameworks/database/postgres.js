@@ -12,7 +12,7 @@ class DatabaseConnection {
     try {
       const env = process.env.NODE_ENV || "development";
       const isProduction = env === "production";
-      const databaseUrl = process.env.DATABASE_URL;
+      const databaseUrl = process.env.PROD_DB_URL;
 
       // Initialize Sequelize instance
       this.sequelize = new Sequelize(databaseUrl, {
