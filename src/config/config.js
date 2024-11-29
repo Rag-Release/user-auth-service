@@ -15,11 +15,11 @@ const config = {
   // Database configuration
   db: {
     development: {
-      username: process.env.DB_USERNAME || "postgres",
-      password: process.env.DB_PASSWORD || "admin",
-      database: process.env.DB_NAME || "user_auth_dev",
-      host: process.env.DB_HOST || "localhost",
-      port: process.env.DB_PORT || 5432,
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT,
       dialect: "postgres",
       logging: console.log,
       pool: {
@@ -30,11 +30,11 @@ const config = {
       },
     },
     test: {
-      username: process.env.TEST_DB_USERNAME || "postgres",
-      password: process.env.TEST_DB_PASSWORD || "admin",
-      database: process.env.TEST_DB_NAME || "user_auth_test",
-      host: process.env.TEST_DB_HOST || "localhost",
-      port: process.env.TEST_DB_PORT || 5432,
+      username: process.env.TEST_DB_USERNAME,
+      password: process.env.TEST_DB_PASSWORD,
+      database: process.env.TEST_DB_NAME,
+      host: process.env.TEST_DB_HOST,
+      port: process.env.TEST_DB_PORT,
       dialect: "postgres",
       logging: false,
       pool: {
@@ -62,11 +62,11 @@ const config = {
   },
 
   development: {
-    username: process.env.DB_USERNAME || "postgres",
-    password: process.env.DB_PASSWORD || "admin",
-    database: process.env.DB_NAME || "user_auth_dev",
-    host: process.env.DB_HOST || "localhost",
-    port: process.env.DB_PORT || 5432,
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
     dialect: "postgres",
     logging: console.log,
     pool: {
@@ -77,11 +77,11 @@ const config = {
     },
   },
   test: {
-    username: process.env.TEST_DB_USERNAME || "postgres",
-    password: process.env.TEST_DB_PASSWORD || "admin",
-    database: process.env.TEST_DB_NAME || "user_auth_test",
-    host: process.env.TEST_DB_HOST || "localhost",
-    port: process.env.TEST_DB_PORT || 5432,
+    username: process.env.TEST_DB_USERNAME,
+    password: process.env.TEST_DB_PASSWORD,
+    database: process.env.TEST_DB_NAME,
+    host: process.env.TEST_DB_HOST,
+    port: process.env.TEST_DB_PORT,
     dialect: "postgres",
     logging: false,
     pool: {

@@ -5,7 +5,7 @@ const path = require("path");
 const Sequelize = require("sequelize");
 const process = require("process");
 const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || "development";
+const env = process.env.NODE_ENV;
 const config = require("../../../config/config");
 const db = {};
 
@@ -19,7 +19,6 @@ try {
   const dbName = process.env.DB_NAME || config[env].database;
 
   // Log connection attempt details
-  console.log(`🚀 ~ DatabaseConnection ~ connect ~ env: ${env}`);
   console.log(
     `🚀 ~ DatabaseConnection ~ connect ~ Attempting to connect to database ${dbName} at ${dbHost}:${dbPort}`
   );
@@ -41,9 +40,9 @@ try {
       },
     },
   });
+  console.log("🚀 ~ sequelize:", sequelize);
 
   // Log connection success
-  console.log(`🚀 ~ DatabaseConnection ~ connect ~ this.sequelize:`, sequelize);
   console.log("Database connection established successfully.");
 } catch (error) {
   // Log error and exit on connection failure
