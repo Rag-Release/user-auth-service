@@ -45,7 +45,16 @@ class DatabaseConnection {
         pool: {
           max: 5,
           min: 0,
+          acquire: 30000,
           idle: 10000,
+        },
+        retry: {
+          match: [
+            /SequelizeConnectionError/,
+            /SequelizeHostNotFoundError/,
+            /getaddrinfo ENOTFOUND/,
+          ],
+          max: 3, // Retry up to 3 times
         },
       });
 
