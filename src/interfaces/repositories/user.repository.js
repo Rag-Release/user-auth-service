@@ -23,44 +23,45 @@ class UserRepository {
     }
   }
 
-  async create(userData) {
-    try {
-      const hashedPassword = await this.passwordService.hashPassword(
-        userData.password
-      );
+  // async create(userData) {
+  //   try {
+  //     const hashedPassword = await this.passwordService.hashPassword(
+  //       userData.password
+  //     );
 
-      const user = await this.User.create({
-        // Changed from User to this.User
-        email: userData.email,
-        password: hashedPassword,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-      });
+  //     const user = await this.User.create({
+  //       // Changed from User to this.User
+  //       email: userData.email,
+  //       password: hashedPassword,
+  //       firstName: userData.firstName,
+  //       lastName: userData.lastName,
+  //     });
 
-      return {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-      };
-    } catch (error) {
-      console.error("Error in create:", error);
-      throw error;
-    }
-  }
+  //     return {
+  //       id: user.id,
+  //       email: user.email,
+  //       firstName: user.firstName,
+  //       lastName: user.lastName,
+  //     };
+  //   } catch (error) {
+  //     console.error("Error in create:", error);
+  //     throw error;
+  //   }
+  // }
 
   async findById(id) {
-    return this.UserModel.findByPk(id);
+    return this.User.findByPk(id);
+  }
+
+  async findAll() {
+    return this.User.findAll();
   }
 
   async update(id, updateData) {
-    const [numAffected, [updatedUser]] = await this.UserModel.update(
-      updateData,
-      {
-        where: { id },
-        returning: true,
-      }
-    );
+    const [numAffected, [updatedUser]] = await this.User.update(updateData, {
+      where: { id },
+      returning: true,
+    });
     return updatedUser;
   }
 

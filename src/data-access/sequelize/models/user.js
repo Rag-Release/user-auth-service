@@ -1,20 +1,9 @@
 const { Model } = require("sequelize");
-const bcrypt = require("bcryptjs");
 
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
       // Define associations here
-    }
-
-    async validatePassword(password) {
-      return bcrypt.compare(password, this.password);
-    }
-
-    toJSON() {
-      const values = { ...this.get() };
-      delete values.password;
-      return values;
     }
   }
 
@@ -72,13 +61,6 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "User",
-      hooks: {
-        beforeSave: async (user) => {
-          if (user.changed("password")) {
-            user.password = await bcrypt.hash(user.password, 10);
-          }
-        },
-      },
     }
   );
 
