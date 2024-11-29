@@ -18,27 +18,16 @@ try {
   throw error;
 }
 
-// Signup route with validation middleware
-router.post(
-  "/signup",
-  validateMiddleware(signupValidator),
-  userController.signup
+router.get(
+  "/profile/:id",
+  // validateMiddleware(userValidators.updateProfile),
+  userController.getUser.bind(userController)
 );
 
-// Auth routes
-router.post(
-  "/sign-in",
-  // validateMiddleware(userValidators.signIn),
-  userController.signIn.bind(userController)
-);
-
-// Protected routes
-// router.use(auth); // Apply auth middleware to all routes below
-
-router.put(
+router.get(
   "/profile",
   // validateMiddleware(userValidators.updateProfile),
-  userController.updateProfile.bind(userController)
+  userController.getUsers.bind(userController)
 );
 
 router.post(
