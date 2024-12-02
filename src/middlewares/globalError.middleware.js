@@ -1,5 +1,5 @@
 // src/frameworks/webserver/middlewares/globalErrorMiddleware.js
-const ErrorHandler = require("../../shared/utils/ErrorHandler");
+const ErrorHandler = require("../shared/utils/ErrorHandler");
 
 const globalErrorMiddleware = (err, req, res, next) => {
   // If it's not our custom ErrorHandler, convert it

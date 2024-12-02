@@ -1,4 +1,3 @@
-const { dbsetup } = require("../const");
 require("dotenv").config();
 
 const config = {

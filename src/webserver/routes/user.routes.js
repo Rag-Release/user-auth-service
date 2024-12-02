@@ -2,12 +2,12 @@
 
 const express = require("express");
 const router = express.Router();
-const UserController = require("../../../interfaces/controllers/user.controller");
-const validateMiddleware = require("../../../interfaces/middlewares/validate.middleware");
+const UserController = require("../../controllers/user.controller");
+const validateMiddleware = require("../../middlewares/validate.middleware");
 const {
   signupValidator,
   userValidators,
-} = require("../../../interfaces/validators/user.validator");
+} = require("../../validators/user.validator");
 
 // Create controller instance with error handling
 let userController;

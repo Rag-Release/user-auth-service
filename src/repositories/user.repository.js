@@ -1,6 +1,6 @@
 // user.repository.js
-const models = require("../../data-access/sequelize/models"); // Make sure this path is correct
-const PasswordService = require("../../frameworks/services/password.service");
+const models = require("../data-access/sequelize/models"); // Make sure this path is correct
+const PasswordService = require("../services/password.service");
 
 class UserRepository {
   constructor() {
