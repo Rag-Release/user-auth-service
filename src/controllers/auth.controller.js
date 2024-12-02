@@ -1,9 +1,9 @@
-const { SignInUseCase, SignupUseCase } = require("../../use-cases/auth");
+const { SignInUseCase, SignupUseCase } = require("../use-cases/auth");
 const AuthRepository = require("../repositories/auth.repository");
-const JWTService = require("../../frameworks/services/jwt.service");
-const ErrorHandler = require("../../shared/utils/ErrorHandler");
-const PasswordService = require("../../frameworks/services/password.service");
-// const PaymentService = require("../../frameworks/services/payment.service");
+const JWTService = require("../services/jwt.service");
+const ErrorHandler = require("../shared/utils/ErrorHandler");
+const PasswordService = require("../services/password.service");
+// const PaymentService = require("../services/payment.service");
 
 class AuthController {
   constructor() {
@@ -62,6 +62,11 @@ class AuthController {
             email: result.user.email,
             firstName: result.user.firstName,
             lastName: result.user.lastName,
+            role: result.user.role,
+            isEmailVerified: result.user.isEmailVerified,
+            isActive: result.user.isActive,
+            createdAt: result.user.createdAt,
+            updatedAt: result.user.updatedAt,
           },
           token: result.token,
         },
@@ -100,6 +105,11 @@ class AuthController {
             email: result.user.email,
             firstName: result.user.firstName,
             lastName: result.user.lastName,
+            role: result.user.role,
+            isEmailVerified: result.user.isEmailVerified,
+            isActive: result.user.isActive,
+            createdAt: result.user.createdAt,
+            updatedAt: result.user.updatedAt,
           },
           token: result.token,
         },

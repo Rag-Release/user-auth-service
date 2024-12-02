@@ -1,11 +1,11 @@
-const PasswordService = require("../../frameworks/services/password.service");
-const JWTService = require("../../frameworks/services/jwt.service");
+const PasswordService = require("../../services/password.service");
+const JWTService = require("../../services/jwt.service");
 const passwordService = new PasswordService();
 const jwtService = new JWTService();
 
 class SignInUseCase {
-  constructor(userRepository, passwordService, jwtService) {
-    this.userRepository = userRepository;
+  constructor(authRepository, passwordService, jwtService) {
+    this.authRepository = authRepository;
     this.passwordService = passwordService;
     this.jwtService = jwtService;
   }
@@ -15,7 +15,7 @@ class SignInUseCase {
       throw new Error("Email and password are required");
     }
 
-    const user = await this.userRepository.findByEmail(email);
+    const user = await this.authRepository.findByEmail(email);
     if (!user) {
       throw new Error("User not found");
     }

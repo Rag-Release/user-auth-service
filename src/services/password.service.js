@@ -1,6 +1,5 @@
-const bcrypt = require("bcrypt");
 const bcryptjs = require("bcryptjs");
-const config = require("../../config/config");
+const config = require("../config/config");
 
 class PasswordService {
   hashPassword(password) {
