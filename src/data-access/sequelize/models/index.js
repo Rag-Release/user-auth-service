@@ -1,4 +1,3 @@
-// user-auth-service/src/data-access/sequelize/models/index.js
 "use strict";
 
 const fs = require("fs");
@@ -6,31 +5,52 @@ const path = require("path");
 const Sequelize = require("sequelize");
 const process = require("process");
 const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || "development";
+const env = process.env.NODE_ENV;
 const config = require("../../../config/config");
-
 const db = {};
 
 let sequelize;
 try {
-  sequelize = new Sequelize(
-    config[env].database,
-    config[env].username,
-    config[env].password,
-    {
-      host: config[env].host,
-      port: config[env].port,
-      dialect: config[env].dialect,
-      logging: config[env].logging,
-      pool: config[env].pool,
-    }
+  // Read database connection settings from environment variables or config
+  const dbHost = process.env.DB_HOST || config[env].host;
+  const dbPort = process.env.DB_PORT || config[env].port;
+  const dbUser = process.env.DB_USERNAME || config[env].username;
+  const dbPassword = process.env.DB_PASSWORD || config[env].password;
+  const dbName = process.env.DB_NAME || config[env].database;
+
+  // Log connection attempt details
+  console.log(
+    `🚀 ~ DatabaseConnection ~ connect ~ Attempting to connect to database ${dbName} at ${dbHost}:${dbPort}`
   );
+
+  // Create Sequelize connection
+  sequelize = new Sequelize(dbName, dbUser, dbPassword, {
+    host: dbHost,
+    port: dbPort,
+    dialect: "postgres",
+    logging: console.log, // Custom logging function (optional)
+    pool: {
+      max: 5,
+      min: 0,
+      idle: 10000,
+    },
+    dialectOptions: {
+      ssl: {
+        rejectUnauthorized: false, // Adjust SSL settings if necessary
+      },
+    },
+  });
+  console.log("🚀 ~ sequelize:", sequelize);
+
+  // Log connection success
+  console.log("Database connection established successfully.");
 } catch (error) {
+  // Log error and exit on connection failure
   console.error("Error connecting to the database:", error);
   process.exit(1);
 }
 
-// Load models
+// Load models dynamically
 fs.readdirSync(__dirname)
   .filter((file) => {
     return (
@@ -46,10 +66,9 @@ fs.readdirSync(__dirname)
       Sequelize.DataTypes
     );
     db[model.name] = model;
-    // console.log(`Loaded model: ${model.name}`); // Debug log
   });
 
-// Initialize associations
+// Initialize associations (if any)
 Object.keys(db).forEach((modelName) => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
@@ -58,7 +77,5 @@ Object.keys(db).forEach((modelName) => {
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
-
-// console.log("Exported models:", Object.keys(db)); // Debug log to see exported models
 
 module.exports = db;

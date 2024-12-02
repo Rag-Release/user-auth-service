@@ -1,11 +1,11 @@
 const {
   UpdateProfileUseCase,
   UpgradeAccountUseCase,
-} = require("../../use-cases/user");
+} = require("../use-cases/user");
 const UserRepository = require("../repositories/user.repository");
-const JWTService = require("../../frameworks/services/jwt.service");
-const ErrorHandler = require("../../shared/utils/ErrorHandler");
-const PasswordService = require("../../frameworks/services/password.service");
+const JWTService = require("../services/jwt.service");
+const ErrorHandler = require("../shared/utils/ErrorHandler");
+const PasswordService = require("../services/password.service");
 // const PaymentService = require("../../frameworks/services/payment.service");
 
 class UserController {
