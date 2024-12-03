@@ -57,6 +57,38 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
       },
+      homeAddress: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      deliveryAddress: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      phoneNumber: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      pickupPoint: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      company: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      fiscalCode: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      cardNumber: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      cardExpiry: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },
     {
       sequelize,
