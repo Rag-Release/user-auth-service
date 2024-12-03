@@ -1,6 +1,6 @@
-const app = require("./frameworks/webserver/express-app");
+const app = require("./webserver/express-app");
 const config = require("./config/config");
-const databaseConnection = require("./frameworks/database/postgres"); // Import the database connection
+const databaseConnection = require("./database/database"); // Import the database connection
 
 const PORT = config.port;
 
