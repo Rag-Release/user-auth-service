@@ -40,7 +40,6 @@ try {
       },
     },
   });
-  console.log("🚀 ~ sequelize:", sequelize);
 
   // Log connection success
   console.log("Database connection established successfully.");

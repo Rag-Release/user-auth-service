@@ -65,6 +65,13 @@ class UserRepository {
     return updatedUser;
   }
 
+  async updateAll(updateData) {
+    const [numAffected] = await this.User.update(updateData, {
+      where: {},
+    });
+    return numAffected;
+  }
+
   async verifyEmail(userId) {
     return this.update(userId, { isEmailVerified: true });
   }

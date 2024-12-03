@@ -30,6 +30,12 @@ router.get(
   userController.getUsers.bind(userController)
 );
 
+router.put(
+  "profile/:id",
+  // validateMiddleware(userValidators.updateProfile),
+  userController.updateProfile.bind(userController)
+);
+
 router.post(
   "/upgrade",
   // validateMiddleware(userValidators.upgradeAccount),

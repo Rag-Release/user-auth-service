@@ -187,10 +187,7 @@ class UserController {
     try {
       const userId = req.user.id;
       const updateData = req.body;
-      const updatedUser = await this.userRepository.updateById(
-        userId,
-        updateData
-      );
+      const updatedUser = await this.userRepository.update(userId, updateData);
       res.json(updatedUser);
     } catch (error) {
       res.status(400).json({ error: error.message });
