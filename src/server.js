@@ -12,7 +12,7 @@ async function startServer() {
     if (isDbConnected) {
       // If the database is connected, start the server
       app.listen(PORT, () => {
-        console.log("Server running on port ${PORT}");
+        console.log(`Server running on port ${PORT}`);
       });
     } else {
       console.error("Database connection failed. Server not started.");
