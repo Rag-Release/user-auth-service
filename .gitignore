@@ -114,4 +114,4 @@ jspm_packages/
 
 /src/config/
 
-/src/database/
+src/database/postgres.js
