@@ -35,12 +35,15 @@ try {
       idle: 10000,
     },
     dialectOptions: {
-      ssl: {
-        rejectUnauthorized: false, // Adjust SSL settings if necessary
-      },
+      ssl:
+        env === "production"
+          ? {
+              require: true,
+              rejectUnauthorized: false,
+            }
+          : false,
     },
   });
-  console.log("🚀 ~ sequelize:", sequelize);
 
   // Log connection success
   console.log("Database connection established successfully.");

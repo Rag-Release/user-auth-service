@@ -41,110 +41,6 @@ class UserController {
     }
   }
 
-  // signup = async (req, res) => {
-  //   try {
-  //     const { email, password, firstName, lastName } = req.body;
-  //     console.log("🚀 ~ UserController ~ signup= ~ req:", req.body);
-
-  //     const result = await this.signupUseCase.execute({
-  //       email,
-  //       password,
-  //       firstName,
-  //       lastName,
-  //     });
-
-  //     return res.status(201).json({
-  //       status: "success",
-  //       message: "User registered successfully",
-  //       data: {
-  //         user: {
-  //           id: result.user.id,
-  //           email: result.user.email,
-  //           firstName: result.user.firstName,
-  //           lastName: result.user.lastName,
-  //         },
-  //         token: result.token,
-  //       },
-  //     });
-  //   } catch (error) {
-  //     console.error("Signup error:", error);
-
-  //     if (error.message === "Email already registered") {
-  //       return res.status(409).json({
-  //         status: "error",
-  //         message: error.message,
-  //       });
-  //     }
-
-  //     return res.status(500).json({
-  //       status: "error",
-  //       message: "Internal server error",
-  //     });
-  //   }
-  // };
-
-  // signIn = async (req, res) => {
-  //   try {
-  //     const { email, password } = req.body;
-  //     console.log("🚀 ~ UserController ~ signIn= ~ password:", password);
-  //     console.log("🚀 ~ UserController ~ signIn= ~ email:", email);
-
-  //     // Validation
-  //     if (!email || !password) {
-  //       throw ErrorHandler.badRequest("Email and password are required");
-  //     }
-
-  //     const result = await this.signInUseCase.execute(email, password);
-  //     console.log("🚀 ~ UserController ~ signIn= ~ result:", result);
-
-  //     if (!result) {
-  //       throw ErrorHandler.unauthorized("Invalid credentials");
-  //     }
-  //     return res.status(200).json({
-  //       status: "success",
-  //       message: "User logged in successfully",
-  //       data: {
-  //         user: {
-  //           id: result.user.id,
-  //           email: result.user.email,
-  //           firstName: result.user.firstName,
-  //           lastName: result.user.lastName,
-  //         },
-  //         token: result.token,
-  //       },
-  //     });
-  //   } catch (error) {
-  //     res.status(400).json({ error: error.message });
-  //   }
-  // };
-
-  // signIn = async (req, res) => {
-  //   try {
-  //     if (!this.signInUseCase) {
-  //       console.error("signInUseCase is not initialized");
-  //       throw new Error("signInUseCase is not defined");
-  //     }
-  //     const { email, password } = req.body;
-  //     const result = await this.signInUseCase.execute(email, password);
-  //     res.status(200).json({
-  //       status: "success",
-  //       message: "User logged in successfully",
-  //       data: {
-  //         user: {
-  //           id: result.user.id,
-  //           email: result.user.email,
-  //           firstName: result.user.firstName,
-  //           lastName: result.user.lastName,
-  //         },
-  //         token: result.token,
-  //       },
-  //     });
-  //   } catch (error) {
-  //     console.error("Error in signIn:", error.message, error.stack);
-  //     res.status(400).json({ error: error.message });
-  //   }
-  // };
-
   async getUser(req, res) {
     try {
       const userId = req.params.id;
@@ -164,30 +60,11 @@ class UserController {
     }
   }
 
-  async deleteUser(req, res) {
+  async updateProfile(req, res) {
     try {
-      const userId = req.user.id;
-      const user = await this.userRepository.deleteById(userId);
-      res.json(user);
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-  }
-
-  async deleteUsers(req, res) {
-    try {
-      const users = await this.userRepository.deleteAll();
-      res.json(users);
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-  }
-
-  async updateUser(req, res) {
-    try {
-      const userId = req.user.id;
+      const userId = req.params.id; // From auth middleware
       const updateData = req.body;
-      const updatedUser = await this.userRepository.updateById(
+      const updatedUser = await this.updateProfileUseCase.execute(
         userId,
         updateData
       );
@@ -207,36 +84,6 @@ class UserController {
     }
   }
 
-  async createUser(req, res) {
-    try {
-      const userData = req.body;
-      const newUser = await this.userRepository.create(userData);
-      res.json(newUser);
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-  }
-
-  async createUsers(req, res) {
-    try {
-      const usersData = req.body;
-      const newUsers = await this.userRepository.createAll(usersData);
-      res.json(newUsers);
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-  }
-
-  async getUserById(req, res) {
-    try {
-      const userId = req.params.id;
-      const user = await this.userRepository.findById(userId);
-      res.json(user);
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-  }
-
   async getUsersByIds(req, res) {
     try {
       const userIds = req.body;
@@ -247,25 +94,31 @@ class UserController {
     }
   }
 
-  async deleteUserById(req, res) {
+  async softDeleteUser(req, res) {
     try {
       const userId = req.params.id;
-      const user = await this.userRepository.deleteById(userId);
+      const updateData = req.body;
+      const user = await this.userRepository.softDelete(userId, updateData);
       res.json(user);
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
   }
 
-  async updateProfile(req, res) {
+  async deleteUserById(req, res) {
     try {
-      const userId = req.user.id; // From auth middleware
-      const updateData = req.body;
-      const updatedUser = await this.updateProfileUseCase.execute(
-        userId,
-        updateData
-      );
-      res.json(updatedUser);
+      const userId = req.params.id;
+      const user = await this.userRepository.deleteUsers(userId);
+      res.json(user);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  async deleteUsers(req, res) {
+    try {
+      const users = await this.userRepository.deleteAll();
+      res.json(users);
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
@@ -280,6 +133,27 @@ class UserController {
         accountType,
         paymentDetails
       );
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  async verifyEmail(req, res) {
+    try {
+      const userId = req.params.id;
+      const result = await this.userRepository.verifyEmail(userId);
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  async deVerifyEmail(req, res) {
+    try {
+      const userId = req.params.id;
+      console.log("🚀 ~ UserController ~ deVerifyEmail ~ userId:", userId);
+      const result = await this.userRepository.deVerifyEmail(userId);
       res.json(result);
     } catch (error) {
       res.status(400).json({ error: error.message });

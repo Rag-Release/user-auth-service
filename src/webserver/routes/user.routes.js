@@ -30,6 +30,36 @@ router.get(
   userController.getUsers.bind(userController)
 );
 
+router.put(
+  "/profile/:id",
+  // validateMiddleware(userValidators.updateProfile),
+  userController.updateProfile.bind(userController)
+);
+
+router.patch(
+  "/profile/:id",
+  // validateMiddleware(userValidators.updateProfile),
+  userController.softDeleteUser.bind(userController)
+);
+
+router.delete(
+  "/profile/:id",
+  // validateMiddleware(userValidators.updateProfile),
+  userController.deleteUserById.bind(userController)
+);
+
+router.patch(
+  "/profile-verify/:id",
+  // validateMiddleware(userValidators.updateProfile),
+  userController.verifyEmail.bind(userController)
+);
+
+router.patch(
+  "/profile-de-verify/:id",
+  // validateMiddleware(userValidators.updateProfile),
+  userController.deVerifyEmail.bind(userController)
+);
+
 router.post(
   "/upgrade",
   // validateMiddleware(userValidators.upgradeAccount),
