@@ -109,3 +109,9 @@ jspm_packages/
 
 # DynamoDB Local files
 .dynamodb/
+
+/src/server.js
+
+/src/config/
+
+src/database/postgres.js
