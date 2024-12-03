@@ -10,7 +10,7 @@ module.exports = {
       type: Sequelize.STRING,
       allowNull: true,
     });
-    await queryInterface.addColumn("Users", "phoneNumbers", {
+    await queryInterface.addColumn("Users", "phoneNumber", {
       type: Sequelize.STRING, // Store as JSON to handle an array
       allowNull: true,
     });
@@ -39,7 +39,7 @@ module.exports = {
   down: async (queryInterface, Sequelize) => {
     await queryInterface.removeColumn("Users", "homeAddress");
     await queryInterface.removeColumn("Users", "deliveryAddress");
-    await queryInterface.removeColumn("Users", "phoneNumbers");
+    await queryInterface.removeColumn("Users", "phoneNumber");
     await queryInterface.removeColumn("Users", "pickupPoint");
     await queryInterface.removeColumn("Users", "company");
     await queryInterface.removeColumn("Users", "fiscalCode");
