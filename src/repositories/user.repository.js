@@ -23,32 +23,6 @@ class UserRepository {
     }
   }
 
-  // async create(userData) {
-  //   try {
-  //     const hashedPassword = await this.passwordService.hashPassword(
-  //       userData.password
-  //     );
-
-  //     const user = await this.User.create({
-  //       // Changed from User to this.User
-  //       email: userData.email,
-  //       password: hashedPassword,
-  //       firstName: userData.firstName,
-  //       lastName: userData.lastName,
-  //     });
-
-  //     return {
-  //       id: user.id,
-  //       email: user.email,
-  //       firstName: user.firstName,
-  //       lastName: user.lastName,
-  //     };
-  //   } catch (error) {
-  //     console.error("Error in create:", error);
-  //     throw error;
-  //   }
-  // }
-
   async findById(id) {
     return this.User.findByPk(id);
   }
@@ -57,12 +31,22 @@ class UserRepository {
     return this.User.findAll();
   }
 
+  async findByIds(ids) {
+    return this.User.findAll({
+      where: { id: ids },
+    });
+  }
+
   async update(id, updateData) {
     const [numAffected, [updatedUser]] = await this.User.update(updateData, {
       where: { id },
       returning: true,
     });
     return updatedUser;
+  }
+
+  async softDelete(id, updateData) {
+    return this.update(id, updateData);
   }
 
   async updateAll(updateData) {
@@ -74,6 +58,53 @@ class UserRepository {
 
   async verifyEmail(userId) {
     return this.update(userId, { isEmailVerified: true });
+  }
+
+  async deVerifyEmail(userId) {
+    const updatedUser = await this.update(userId, { isEmailVerified: false });
+    console.log(
+      "🚀 ~ UserRepository ~ deVerifyEmail ~ updatedUser:",
+      updatedUser
+    );
+    return {
+      success: true,
+      message: "User email de-verified successfully",
+      user: {
+        id: updatedUser.id,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        email: updatedUser.email,
+        isEmailVerified: updatedUser.isEmailVerified,
+      },
+    };
+  }
+
+  async deleteUsers(userIds) {
+    const deletedUsers = await this.User.findAll({
+      where: { id: userIds },
+      attributes: ["id", "firstName", "lastName", "email"],
+    });
+
+    await this.User.destroy({
+      where: { id: userIds },
+    });
+
+    return {
+      success: true,
+      message: "Users deleted successfully",
+      deletedUsers: deletedUsers.map((user) => ({
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        details: user.email,
+      })),
+    };
+  }
+
+  async deleteAll() {
+    return this.User.destroy({
+      where: {},
+    });
   }
 }
 
