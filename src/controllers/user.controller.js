@@ -45,7 +45,11 @@ class UserController {
     try {
       const userId = req.params.id;
       const user = await this.userRepository.findById(userId);
-      res.json(user);
+      res.json({
+        status: "success",
+        message: "User retrieved successfully",
+        data: user,
+      });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
@@ -54,7 +58,11 @@ class UserController {
   async getUsers(req, res) {
     try {
       const users = await this.userRepository.findAll();
-      res.json(users);
+      res.json({
+        status: "success",
+        message: "Users retrieved successfully",
+        data: users,
+      });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
@@ -68,7 +76,37 @@ class UserController {
         userId,
         updateData
       );
-      res.json(updatedUser);
+
+      if (!updatedUser) {
+        return res.status(400).json({ error: "User update failed" });
+      }
+
+      res.json({
+        status: "success",
+        message: "User updated successfully",
+        data: {
+          user: {
+            id: updatedUser.id,
+            email: updatedUser.email,
+            firstName: updatedUser.firstName,
+            lastName: updatedUser.lastName,
+            role: updatedUser.role,
+            isEmailVerified: updatedUser.isEmailVerified,
+            isActive: updatedUser.isActive,
+            createdAt: updatedUser.createdAt,
+            updatedAt: updatedUser.updatedAt,
+            homeAddress: updatedUser.homeAddress,
+            deliveryAddress: updatedUser.deliveryAddress,
+            phoneNumber: updatedUser.phoneNumber,
+            pickupPoint: updatedUser.pickupPoint,
+            company: updatedUser.company,
+            fiscalCode: updatedUser.fiscalCode,
+            cardNumber: updatedUser.cardNumber,
+            cardExpiry: updatedUser.cardExpiry,
+          },
+          token: updatedUser.token,
+        },
+      });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
@@ -78,7 +116,11 @@ class UserController {
     try {
       const updateData = req.body;
       const updatedUsers = await this.userRepository.updateAll(updateData);
-      res.json(updatedUsers);
+      res.json({
+        status: "success",
+        message: "Users updated successfully",
+        data: updatedUsers,
+      });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
@@ -88,7 +130,11 @@ class UserController {
     try {
       const userIds = req.body;
       const users = await this.userRepository.findByIds(userIds);
-      res.json(users);
+      res.json({
+        status: "success",
+        message: "Users retrieved successfully",
+        data: users,
+      });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
@@ -99,7 +145,11 @@ class UserController {
       const userId = req.params.id;
       const updateData = req.body;
       const user = await this.userRepository.softDelete(userId, updateData);
-      res.json(user);
+      res.json({
+        status: "success",
+        message: "User soft deleted successfully",
+        data: user,
+      });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
@@ -109,7 +159,11 @@ class UserController {
     try {
       const userId = req.params.id;
       const user = await this.userRepository.deleteUsers(userId);
-      res.json(user);
+      res.json({
+        status: "success",
+        message: "User deleted successfully",
+        data: user,
+      });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
@@ -118,7 +172,11 @@ class UserController {
   async deleteUsers(req, res) {
     try {
       const users = await this.userRepository.deleteAll();
-      res.json(users);
+      res.json({
+        status: "success",
+        message: "All users deleted successfully",
+        data: users,
+      });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
@@ -133,7 +191,11 @@ class UserController {
         accountType,
         paymentDetails
       );
-      res.json(result);
+      res.json({
+        status: "success",
+        message: "Account upgraded successfully",
+        data: result,
+      });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
@@ -143,7 +205,11 @@ class UserController {
     try {
       const userId = req.params.id;
       const result = await this.userRepository.verifyEmail(userId);
-      res.json(result);
+      res.json({
+        status: "success",
+        message: "Email verified successfully",
+        data: result,
+      });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
@@ -154,7 +220,11 @@ class UserController {
       const userId = req.params.id;
       console.log("🚀 ~ UserController ~ deVerifyEmail ~ userId:", userId);
       const result = await this.userRepository.deVerifyEmail(userId);
-      res.json(result);
+      res.json({
+        status: "success",
+        message: "Email de-verified successfully",
+        data: result,
+      });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
