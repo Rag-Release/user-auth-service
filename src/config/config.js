@@ -3,7 +3,7 @@ require("dotenv").config();
 const config = {
   // Server configuration
   port: process.env.PORT || 3000,
-  nodeEnv: process.env.NODE_ENV || "development",
+  nodeEnv: process.env.NODE_ENV || "production",
   // JWT configuration
   jwt: {
     secret: process.env.JWT_SECRET || "your-secret-key",
