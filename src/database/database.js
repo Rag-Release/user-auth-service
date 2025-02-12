@@ -199,5 +199,3 @@ class DatabaseConnection {
 const databaseConnection = new DatabaseConnection();
 
 module.exports = databaseConnection;
-
-// ./src/webserver/express-app.js
