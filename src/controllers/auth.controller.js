@@ -25,7 +25,7 @@ class AuthController {
   initializeServices() {
     this.jwtService = new JWTService();
     this.passwordService = new PasswordService();
-    this.authRepository = new AuthRepository(this.passwordService);
+    this.authRepository = new AuthRepository();
     // this.paymentService = new PaymentService();
 
     if (!this.authRepository || !this.passwordService || !this.jwtService) {

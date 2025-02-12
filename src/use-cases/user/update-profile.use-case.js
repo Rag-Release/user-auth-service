@@ -13,8 +13,8 @@ class UpdateProfileUseCase {
     "profilePicture",
   ];
 
-  constructor({ userRepository, eventEmitter, validator }) {
-    this.validateDependencies({ userRepository, eventEmitter, validator });
+  constructor({ userRepository, eventEmitter = null, validator = null }) {
+    this.validateDependencies({ userRepository });
     this.userRepository = userRepository;
     this.eventEmitter = eventEmitter;
     this.validator = validator;
@@ -35,15 +35,9 @@ class UpdateProfileUseCase {
     }
   }
 
-  validateDependencies({ userRepository, eventEmitter, validator }) {
+  validateDependencies({ userRepository }) {
     if (!userRepository) {
       throw new Error("UserRepository is required");
-    }
-    if (!eventEmitter) {
-      throw new Error("EventEmitter is required");
-    }
-    if (!validator) {
-      throw new Error("Validator is required");
     }
   }
 
@@ -55,7 +49,9 @@ class UpdateProfileUseCase {
       throw new ValidationError("Update data is required");
     }
 
-    await this.validator.validateUpdateProfile(updateData);
+    if (this.validator) {
+      await this.validator.validateUpdateProfile(updateData);
+    }
   }
 
   async findUser(userId) {
@@ -98,6 +94,10 @@ class UpdateProfileUseCase {
   }
 
   async notifyUpdate(user) {
+    if (!this.eventEmitter) {
+      return;
+    }
+
     try {
       await this.eventEmitter.emit("user.updated", {
         userId: user.id,

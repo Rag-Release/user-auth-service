@@ -4,74 +4,101 @@ const express = require("express");
 const router = express.Router();
 const UserController = require("../../controllers/user.controller");
 const validateMiddleware = require("../../middlewares/validate.middleware");
-const {
-  signupValidator,
-  userValidators,
-} = require("../../validators/user.validator");
+const { userValidators } = require("../../validators/user.validator");
 const {
   verifyToken,
   checkRoles,
 } = require("../../middlewares/auth.middleware");
+const AuthRepository = require("../../repositories/auth.repository");
+const JWTService = require("../../services/jwt.service");
+const PasswordService = require("../../services/password.service");
 
 // Create controller instance with error handling
 let userController;
 try {
-  userController = new UserController();
+  const dependencies = {
+    userRepository: new AuthRepository(),
+    jwtService: new JWTService(),
+    passwordService: new PasswordService(),
+  };
+  userController = new UserController(dependencies);
 } catch (error) {
   console.error("Failed to initialize UserController:", error);
   throw error;
 }
 
+// Bind all controller methods to maintain proper 'this' context
+const boundMethods = {
+  getUsers: userController.getUsers?.bind(userController),
+  getUser: userController.getUser?.bind(userController),
+  updateProfile: userController.updateProfile?.bind(userController),
+  softDeleteUser: userController.softDeleteUser?.bind(userController),
+  deleteUserById: userController.deleteUserById?.bind(userController),
+  verifyEmail: userController.verifyEmail?.bind(userController),
+  deVerifyEmail: userController.deVerifyEmail?.bind(userController),
+  upgradeAccount: userController.upgradeAccount?.bind(userController),
+};
+
 // Protected routes
 router.use(verifyToken); // Protect all routes below
 
-// Regular user routes
-router.get("/profile", userController.getProfile);
-
 // Admin only routes
-router.get("/users", checkRoles(["admin"]), userController.getUsers);
+if (boundMethods.getUsers) {
+  router.get("/users", checkRoles(["admin"]), boundMethods.getUsers);
+}
 
-router.get(
-  "/profile/:id",
-  // validateMiddleware(userValidators.updateProfile),
-  userController.getUser.bind(userController)
-);
+// User routes
+if (boundMethods.getUser) {
+  router.get("/profile/:id", boundMethods.getUser);
+}
 
-router.put(
-  "/profile/:id",
-  // validateMiddleware(userValidators.updateProfile),
-  userController.updateProfile.bind(userController)
-);
+if (boundMethods.updateProfile) {
+  router.put(
+    "/profile/:id",
+    // validateMiddleware(userValidators.updateProfile),
+    boundMethods.updateProfile
+  );
+}
 
-router.patch(
-  "/profile/:id",
-  // validateMiddleware(userValidators.updateProfile),
-  userController.softDeleteUser.bind(userController)
-);
+if (boundMethods.softDeleteUser) {
+  router.patch(
+    "/profile/:id",
+    // validateMiddleware(userValidators.updateProfile),
+    boundMethods.softDeleteUser
+  );
+}
 
-router.delete(
-  "/profile/:id",
-  // validateMiddleware(userValidators.updateProfile),
-  userController.deleteUserById.bind(userController)
-);
+if (boundMethods.deleteUserById) {
+  router.delete(
+    "/profile/:id",
+    // validateMiddleware(userValidators.updateProfile),
+    boundMethods.deleteUserById
+  );
+}
 
-router.patch(
-  "/profile-verify/:id",
-  // validateMiddleware(userValidators.updateProfile),
-  userController.verifyEmail.bind(userController)
-);
+if (boundMethods.verifyEmail) {
+  router.patch(
+    "/profile-verify/:id",
+    // validateMiddleware(userValidators.updateProfile),
+    boundMethods.verifyEmail
+  );
+}
 
-router.patch(
-  "/profile-de-verify/:id",
-  // validateMiddleware(userValidators.updateProfile),
-  userController.deVerifyEmail.bind(userController)
-);
+if (boundMethods.deVerifyEmail) {
+  router.patch(
+    "/profile-de-verify/:id",
+    // validateMiddleware(userValidators.updateProfile),
+    boundMethods.deVerifyEmail
+  );
+}
 
-router.post(
-  "/upgrade",
-  // validateMiddleware(userValidators.upgradeAccount),
-  userController.upgradeAccount.bind(userController)
-);
+if (boundMethods.upgradeAccount) {
+  router.post(
+    "/upgrade",
+    // validateMiddleware(userValidators.upgradeAccount),
+    boundMethods.upgradeAccount
+  );
+}
 
 // Export the router
 module.exports = router;

@@ -1,16 +1,29 @@
-const models = require("../data-access/sequelize/models"); // Make sure this path is correct
+const models = require("../data-access/sequelize/models");
+const PasswordService = require("../services/password.service");
 class AuthRepository {
-  constructor(passwordService) {
-    this.validateDependencies(passwordService);
-    this.initializeRepository(passwordService);
+  constructor() {
+    this.passwordService = new PasswordService();
+
+    if (!this.passwordService) {
+      throw new Error(
+        "Initialization error: Failed to create PasswordService instance"
+      );
+    }
+
+    this.validateDependencies(this.passwordService);
+    this.initializeRepository(this.passwordService);
   }
 
   validateDependencies(passwordService) {
     if (!passwordService) {
-      throw new Error("PasswordService is required");
+      throw new Error(
+        "Validation error: PasswordService is required. Check your dependency injection."
+      );
     }
-    if (!models?.User) {
-      throw new Error("User model is not properly initialized");
+    if (!models || !models.User) {
+      throw new Error(
+        "Validation error: User model is not properly initialized. Please verify your ORM configurations."
+      );
     }
   }
 

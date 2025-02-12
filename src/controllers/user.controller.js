@@ -25,7 +25,10 @@ class UserController extends BaseController {
   }
 
   initializeUseCases() {
-    this.updateProfileUseCase = new UpdateProfileUseCase(this.userRepository);
+    this.updateProfileUseCase = new UpdateProfileUseCase({
+      userRepository: this.userRepository,
+      passwordService: this.passwordService,
+    });
     this.upgradeAccountUseCase = new UpgradeAccountUseCase(this.userRepository);
   }
 
@@ -38,6 +41,11 @@ class UserController extends BaseController {
     }
 
     return this.sendSuccess(res, { user: this.sanitizeUserData(user) });
+  }
+
+  async getUsers(req, res) {
+    const users = await this.userRepository.findAll();
+    return this.sendSuccess(res, { users: users.map(this.sanitizeUserData) });
   }
 
   async updateProfile(req, res) {
@@ -71,11 +79,38 @@ class UserController extends BaseController {
     return this.sendSuccess(res, { result });
   }
 
-  async deleteUser(req, res) {
+  async softDeleteUser(req, res) {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const result = await this.softDeleteUserUseCase.execute(id, userId);
+
+    return this.sendSuccess(res, { result });
+  }
+
+  async deleteUserById(req, res) {
     const { id } = req.params;
     const userId = req.user.id;
 
     const result = await this.deleteUserUseCase.execute(id, userId);
+
+    return this.sendSuccess(res, { result });
+  }
+
+  async verifyEmail(req, res) {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const result = await this.verifyEmailUseCase.execute(id, userId);
+
+    return this.sendSuccess(res, { result });
+  }
+
+  async deVerifyEmail(req, res) {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const result = await this.deVerifyEmailUseCase.execute(id, userId);
 
     return this.sendSuccess(res, { result });
   }
