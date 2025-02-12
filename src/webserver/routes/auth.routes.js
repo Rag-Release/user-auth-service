@@ -9,27 +9,27 @@ const {
   authValidators,
 } = require("../../validators/auth.validator");
 
-// Create controller instance with error handling
-let authController;
-try {
-  authController = new AuthController();
-} catch (error) {
-  console.error("Failed to initialize AuthController:", error);
-  throw error;
-}
+// Initialize controller using IIFE to handle errors immediately
+const authController = (() => {
+  try {
+    return new AuthController();
+  } catch (error) {
+    console.error("Failed to initialize AuthController:", error);
+    process.exit(1);
+  }
+})();
 
-// Signup route with validation middleware
-router.post(
-  "/signup",
-  validateMiddleware(signupValidator),
-  authController.signup
-);
-
-// Auth routes
-router.post(
-  "/sign-in",
-  validateMiddleware(authValidators.signIn),
-  async (req, res) => await authController.signIn(req, res)
-);
+// Route definitions
+router
+  .post(
+    "/signup",
+    validateMiddleware(signupValidator),
+    authController.signup.bind(authController)
+  )
+  .post(
+    "/sign-in",
+    validateMiddleware(authValidators.signIn),
+    authController.signIn.bind(authController)
+  );
 
 module.exports = router;

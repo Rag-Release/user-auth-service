@@ -8,6 +8,10 @@ const {
   signupValidator,
   userValidators,
 } = require("../../validators/user.validator");
+const {
+  verifyToken,
+  checkRoles,
+} = require("../../middlewares/auth.middleware");
 
 // Create controller instance with error handling
 let userController;
@@ -18,16 +22,19 @@ try {
   throw error;
 }
 
+// Protected routes
+router.use(verifyToken); // Protect all routes below
+
+// Regular user routes
+router.get("/profile", userController.getProfile);
+
+// Admin only routes
+router.get("/users", checkRoles(["admin"]), userController.getUsers);
+
 router.get(
   "/profile/:id",
   // validateMiddleware(userValidators.updateProfile),
   userController.getUser.bind(userController)
-);
-
-router.get(
-  "/profile",
-  // validateMiddleware(userValidators.updateProfile),
-  userController.getUsers.bind(userController)
 );
 
 router.put(
