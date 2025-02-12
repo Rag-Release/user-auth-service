@@ -8,7 +8,6 @@ class PasswordService {
 
   async comparePassword(plainPassword, hashedPassword) {
     try {
-      // Explicitly use async comparison
       const isMatch = await bcryptjs.compareSync(plainPassword, hashedPassword);
       return isMatch;
     } catch (error) {
