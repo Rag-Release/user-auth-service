@@ -96,7 +96,6 @@ ${this.stack}
 class AuthError extends ErrorHandler {
   constructor(message, statusCode = 401) {
     super(message, statusCode, "AUTH_ERROR");
-    console.error("[AuthError]", message); // Add error logging
   }
 }
 

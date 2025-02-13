@@ -43,5 +43,3 @@ module.exports = {
     },
   },
 };
-
-// ./src/config/database.js
