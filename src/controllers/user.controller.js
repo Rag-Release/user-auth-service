@@ -2,10 +2,8 @@ const {
   UpdateProfileUseCase,
   UpgradeAccountUseCase,
 } = require("../use-cases/user");
-const UserRepository = require("../repositories/user.repository");
-const JWTService = require("../services/jwt.service");
-const ErrorHandler = require("../shared/utils/ErrorHandler");
-const PasswordService = require("../services/password.service");
+const { UserRepository } = require("../repositories/index");
+const { JWTService, PasswordService } = require("../services/index");
 // const PaymentService = require("../../frameworks/services/payment.service");
 
 class UserController {
@@ -218,7 +216,6 @@ class UserController {
   async deVerifyEmail(req, res) {
     try {
       const userId = req.params.id;
-      console.log("🚀 ~ UserController ~ deVerifyEmail ~ userId:", userId);
       const result = await this.userRepository.deVerifyEmail(userId);
       res.json({
         status: "success",
