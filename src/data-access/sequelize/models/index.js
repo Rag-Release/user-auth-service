@@ -18,11 +18,6 @@ try {
   const dbPassword = process.env.DB_PASSWORD || config[env].password;
   const dbName = process.env.DB_NAME || config[env].database;
 
-  // Log connection attempt details
-  console.log(
-    `🚀 ~ DatabaseConnection ~ connect ~ Attempting to connect to database ${dbName} at ${dbHost}:${dbPort}`
-  );
-
   // Create Sequelize connection
   sequelize = new Sequelize(dbName, dbUser, dbPassword, {
     host: dbHost,
@@ -44,9 +39,6 @@ try {
           : false,
     },
   });
-
-  // Log connection success
-  console.log("Database connection established successfully.");
 } catch (error) {
   // Log error and exit on connection failure
   console.error("Error connecting to the database:", error);
