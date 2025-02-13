@@ -39,6 +39,13 @@ const signupValidator = Joi.object({
 });
 
 const authValidators = {
+  signup: Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().min(6).required(),
+    firstName: Joi.string().required(),
+    lastName: Joi.string().required(),
+  }),
+
   signIn: Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().required(),
