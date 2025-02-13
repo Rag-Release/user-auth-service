@@ -62,10 +62,7 @@ class UserRepository {
 
   async deVerifyEmail(userId) {
     const updatedUser = await this.update(userId, { isEmailVerified: false });
-    console.log(
-      "🚀 ~ UserRepository ~ deVerifyEmail ~ updatedUser:",
-      updatedUser
-    );
+
     return {
       success: true,
       message: "User email de-verified successfully",
