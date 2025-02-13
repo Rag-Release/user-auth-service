@@ -304,7 +304,7 @@ class SignInUseCase {
       throw new Error("Invalid credentials");
     }
 
-    return this.jwtService.generateToken(user);
+    return this.jwtService.generateTokenPair(user);
   }
 }
 ```
