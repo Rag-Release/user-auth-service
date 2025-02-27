@@ -1,7 +1,7 @@
 const UpdateProfileUseCase = require("./update-profile.use-case");
-const UpgradeAccountUseCase = require("./upgrade-account.use-case");
+const AccountUpgradeUseCase = require("./accountUpgrade.use-case");
 
 module.exports = {
   UpdateProfileUseCase,
-  UpgradeAccountUseCase,
+  AccountUpgradeUseCase,
 };

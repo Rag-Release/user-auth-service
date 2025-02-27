@@ -1,9 +1,9 @@
 const { SignInUseCase, SignupUseCase } = require("./auth");
-const { UpdateProfileUseCase, UpgradeAccountUseCase } = require("./user");
+const { UpdateProfileUseCase, AccountUpgradeUseCase } = require("./user");
 
 module.exports = {
   SignInUseCase,
   SignupUseCase,
   UpdateProfileUseCase,
-  UpgradeAccountUseCase,
+  AccountUpgradeUseCase,
 };
