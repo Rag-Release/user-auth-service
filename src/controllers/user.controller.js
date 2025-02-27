@@ -1,7 +1,7 @@
 const BaseController = require("./base.controller");
 const {
   UpdateProfileUseCase,
-  UpgradeAccountUseCase,
+  AccountUpgradeUseCase,
 } = require("../use-cases/user");
 const ErrorHandler = require("../shared/utils/ErrorHandler");
 
@@ -28,7 +28,11 @@ class UserController extends BaseController {
       userRepository: this.userRepository,
       passwordService: this.passwordService,
     });
-    this.upgradeAccountUseCase = new UpgradeAccountUseCase(this.userRepository);
+    this.accountUpgradeUseCase = new AccountUpgradeUseCase(
+      this.userRepository,
+      this.accountUpgradeRepository,
+      this.paymentRecordRepository
+    );
   }
 
   async getUser(req, res) {
@@ -67,7 +71,7 @@ class UserController extends BaseController {
     const { accountType, paymentDetails } = req.body;
     const userId = req.user.id;
 
-    const result = await this.upgradeAccountUseCase.execute(
+    const result = await this.accountUpgradeUseCase.execute(
       userId,
       accountType,
       paymentDetails
