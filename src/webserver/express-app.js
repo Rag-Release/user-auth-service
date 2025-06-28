@@ -5,7 +5,7 @@ const compression = require("compression");
 const rateLimit = require("express-rate-limit");
 const morgan = require("morgan");
 
-const { authRoutes, userRoutes } = require("./routes");
+const { authRoutes, userRoutes, accountUpgradeRoutes } = require("./routes");
 const {
   globalErrorMiddleware,
 } = require("../middlewares/globalError.middleware");
@@ -80,6 +80,7 @@ class ExpressApp {
     // Routes
     this.app.use(`${apiVersion}/auth`, authRoutes);
     this.app.use(`${apiVersion}/users`, userRoutes);
+    this.app.use(`${apiVersion}/users`, accountUpgradeRoutes);
 
     // Handle undefined routes
     this.app.all("*", (req, res, next) => {
