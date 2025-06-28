@@ -1,233 +1,213 @@
+const BaseController = require("./base.controller");
 const {
   UpdateProfileUseCase,
-  UpgradeAccountUseCase,
+  AccountUpgradeUseCase,
 } = require("../use-cases/user");
-const UserRepository = require("../repositories/user.repository");
-const JWTService = require("../services/jwt.service");
 const ErrorHandler = require("../shared/utils/ErrorHandler");
-const PasswordService = require("../services/password.service");
-// const PaymentService = require("../../frameworks/services/payment.service");
 
-class UserController {
-  constructor() {
-    try {
-      this.userRepository = new UserRepository();
-      this.jwtService = new JWTService();
-      this.passwordService = new PasswordService();
-      // this.paymentService = new PaymentService();
+class UserController extends BaseController {
+  constructor(dependencies) {
+    super();
+    this.initializeDependencies(dependencies);
+  }
 
-      if (!this.userRepository || !this.passwordService || !this.jwtService) {
-        throw new Error("Missing dependencies in SignInUseCase");
-      }
-
-      // Validate that all use cases are defined before instantiation
-      if (!UpdateProfileUseCase) {
-        throw new Error("UpdateProfileUseCase is not defined");
-      }
-      if (!UpgradeAccountUseCase) {
-        throw new Error("UpgradeAccountUseCase is not defined");
-      }
-
-      // Initialize use cases
-      this.updateProfileUseCase = new UpdateProfileUseCase(this.userRepository);
-
-      // this.upgradeAccountUseCase = new UpgradeAccountUseCase(
-      //   this.userRepository,
-      //   this.paymentService
-      // );
-    } catch (error) {
-      console.error("Error initializing UserController:", error);
-      throw error;
+  initializeDependencies({ userRepository, jwtService, passwordService }) {
+    if (!userRepository || !jwtService || !passwordService) {
+      throw new Error("Missing required dependencies");
     }
+
+    this.userRepository = userRepository;
+    this.jwtService = jwtService;
+    this.passwordService = passwordService;
+
+    this.initializeUseCases();
+  }
+
+  initializeUseCases() {
+    this.updateProfileUseCase = new UpdateProfileUseCase({
+      userRepository: this.userRepository,
+      passwordService: this.passwordService,
+    });
+    this.accountUpgradeUseCase = new AccountUpgradeUseCase(
+      this.userRepository,
+      this.accountUpgradeRepository,
+      this.paymentRecordRepository
+    );
   }
 
   async getUser(req, res) {
-    try {
-      const userId = req.params.id;
-      const user = await this.userRepository.findById(userId);
-      res.json({
-        status: "success",
-        message: "User retrieved successfully",
-        data: user,
-      });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
+    const userId = req.params.id;
+    const user = await this.userRepository.findById(userId);
+
+    if (!user) {
+      throw new ErrorHandler("User not found", 404, "USER_NOT_FOUND");
     }
+
+    return this.sendSuccess(res, { user: this.sanitizeUserData(user) });
   }
 
   async getUsers(req, res) {
-    try {
-      const users = await this.userRepository.findAll();
-      res.json({
-        status: "success",
-        message: "Users retrieved successfully",
-        data: users,
-      });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
+    const users = await this.userRepository.findAll();
+    return this.sendSuccess(res, { users: users.map(this.sanitizeUserData) });
   }
 
   async updateProfile(req, res) {
-    try {
-      const userId = req.params.id; // From auth middleware
-      const updateData = req.body;
-      const updatedUser = await this.updateProfileUseCase.execute(
-        userId,
-        updateData
-      );
+    const { id } = req.params;
+    const updateData = req.body;
 
-      if (!updatedUser) {
-        return res.status(400).json({ error: "User update failed" });
-      }
+    const updatedUser = await this.updateProfileUseCase.execute(id, updateData);
 
-      res.json({
-        status: "success",
-        message: "User updated successfully",
-        data: {
-          user: {
-            id: updatedUser.id,
-            email: updatedUser.email,
-            firstName: updatedUser.firstName,
-            lastName: updatedUser.lastName,
-            role: updatedUser.role,
-            isEmailVerified: updatedUser.isEmailVerified,
-            isActive: updatedUser.isActive,
-            createdAt: updatedUser.createdAt,
-            updatedAt: updatedUser.updatedAt,
-            homeAddress: updatedUser.homeAddress,
-            deliveryAddress: updatedUser.deliveryAddress,
-            phoneNumber: updatedUser.phoneNumber,
-            pickupPoint: updatedUser.pickupPoint,
-            company: updatedUser.company,
-            fiscalCode: updatedUser.fiscalCode,
-            cardNumber: updatedUser.cardNumber,
-            cardExpiry: updatedUser.cardExpiry,
-          },
-          token: updatedUser.token,
-        },
-      });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
+    if (!updatedUser) {
+      throw new ErrorHandler("User update failed", 500, "USER_UPDATE_FAILED");
     }
-  }
 
-  async updateUsers(req, res) {
-    try {
-      const updateData = req.body;
-      const updatedUsers = await this.userRepository.updateAll(updateData);
-      res.json({
-        status: "success",
-        message: "Users updated successfully",
-        data: updatedUsers,
-      });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-  }
-
-  async getUsersByIds(req, res) {
-    try {
-      const userIds = req.body;
-      const users = await this.userRepository.findByIds(userIds);
-      res.json({
-        status: "success",
-        message: "Users retrieved successfully",
-        data: users,
-      });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-  }
-
-  async softDeleteUser(req, res) {
-    try {
-      const userId = req.params.id;
-      const updateData = req.body;
-      const user = await this.userRepository.softDelete(userId, updateData);
-      res.json({
-        status: "success",
-        message: "User soft deleted successfully",
-        data: user,
-      });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-  }
-
-  async deleteUserById(req, res) {
-    try {
-      const userId = req.params.id;
-      const user = await this.userRepository.deleteUsers(userId);
-      res.json({
-        status: "success",
-        message: "User deleted successfully",
-        data: user,
-      });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-  }
-
-  async deleteUsers(req, res) {
-    try {
-      const users = await this.userRepository.deleteAll();
-      res.json({
-        status: "success",
-        message: "All users deleted successfully",
-        data: users,
-      });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
+    return this.sendSuccess(res, {
+      user: this.sanitizeUserData(updatedUser.data),
+      token: this.jwtService.generateTokenPair(updatedUser),
+    });
   }
 
   async upgradeAccount(req, res) {
-    try {
-      const userId = req.user.id;
-      const { accountType, paymentDetails } = req.body;
-      const result = await this.upgradeAccountUseCase.execute(
-        userId,
-        accountType,
-        paymentDetails
-      );
-      res.json({
-        status: "success",
-        message: "Account upgraded successfully",
-        data: result,
-      });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
+    const { accountType, paymentDetails } = req.body;
+    const userId = req.user.id;
+
+    const result = await this.accountUpgradeUseCase.execute(
+      userId,
+      accountType,
+      paymentDetails
+    );
+
+    return this.sendSuccess(res, { result });
+  }
+
+  async softDeleteUser(req, res) {
+    const userId = req.params.id;
+    const updateData = req.body;
+    const result = await this.userRepository.softDelete(userId, updateData);
+
+    return this.sendSuccess(res, { user: this.sanitizeUserData(result) });
+  }
+
+  async deleteUserById(req, res) {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const result = await this.deleteUserUseCase.execute(id, userId);
+
+    return this.sendSuccess(res, { result });
   }
 
   async verifyEmail(req, res) {
-    try {
-      const userId = req.params.id;
-      const result = await this.userRepository.verifyEmail(userId);
-      res.json({
-        status: "success",
-        message: "Email verified successfully",
-        data: result,
-      });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
+    const userId = req.params.id;
+    const result = await this.userRepository.verifyEmail(userId);
+
+    return this.sendSuccess(res, { user: this.sanitizeUserData(result) });
   }
 
   async deVerifyEmail(req, res) {
-    try {
-      const userId = req.params.id;
-      console.log("🚀 ~ UserController ~ deVerifyEmail ~ userId:", userId);
-      const result = await this.userRepository.deVerifyEmail(userId);
-      res.json({
-        status: "success",
-        message: "Email de-verified successfully",
-        data: result,
-      });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
+    const userId = req.params.id;
+    const result = await this.userRepository.deVerifyEmail(userId);
+
+    return this.sendSuccess(res, { user: this.sanitizeUserData(result) });
+  }
+
+  async getUserOrders(req, res) {
+    const userId = req.user.id;
+
+    const result = await this.getUserOrdersUseCase.execute(userId);
+
+    return this.sendSuccess(res, { result });
+  }
+
+  async getUserOrderDetails(req, res) {
+    const { orderId } = req.params;
+    const userId = req.user.id;
+
+    const result = await this.getUserOrderDetailsUseCase.execute(
+      orderId,
+      userId
+    );
+
+    return this.sendSuccess(res, { result });
+  }
+
+  async getUserPaymentMethods(req, res) {
+    const userId = req.user.id;
+
+    const result = await this.getUserPaymentMethodsUseCase.execute(userId);
+
+    return this.sendSuccess(res, { result });
+  }
+
+  async addPaymentMethod(req, res) {
+    const { paymentMethod } = req.body;
+    const userId = req.user.id;
+
+    const result = await this.addPaymentMethodUseCase.execute(
+      userId,
+      paymentMethod
+    );
+
+    return this.sendSuccess(res, { result });
+  }
+
+  async deletePaymentMethod(req, res) {
+    const { paymentMethodId } = req.params;
+    const userId = req.user.id;
+
+    const result = await this.deletePaymentMethodUseCase.execute(
+      paymentMethodId,
+      userId
+    );
+
+    return this.sendSuccess(res, { result });
+  }
+
+  async getUserNotifications(req, res) {
+    const userId = req.user.id;
+
+    const result = await this.getUserNotificationsUseCase.execute(userId);
+
+    return this.sendSuccess(res, { result });
+  }
+
+  sanitizeUserData(user) {
+    const allowedFields = [
+      "email",
+      "firstName",
+      "lastName",
+      "role",
+      "isEmailVerified",
+      "isActive",
+      "homeAddress",
+      "deliveryAddress",
+      "phoneNumbers",
+      "pickupPoint",
+      "company",
+      "fiscalCode",
+      "cardNumber",
+      "cardExpiry",
+    ];
+
+    return allowedFields.reduce((acc, field) => {
+      if (user[field] !== undefined) {
+        // Handle special cases for sensitive fields
+        if (field === "cardNumber") {
+          // Only show last 4 digits
+          acc[field] = user[field]
+            ? `****-****-****-${user[field].slice(-4)}`
+            : null;
+        } else if (field === "cardExpiry") {
+          // Format as MM/YY
+          acc[field] = user[field]
+            ? user[field].replace(/(\d{2})(\d{2})/, "$1/$2")
+            : null;
+        } else {
+          acc[field] = user[field];
+        }
+      }
+      return acc;
+    }, {});
   }
 }
 

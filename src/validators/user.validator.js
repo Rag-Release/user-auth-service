@@ -44,11 +44,23 @@ const userValidators = {
     password: Joi.string().required(),
   }),
 
-  updateProfile: Joi.object({
-    firstName: Joi.string().min(2).max(50),
-    lastName: Joi.string().min(2).max(50),
-    email: Joi.string().email(),
-  }),
+  validateUserUpdate: Joi.object({
+    firstName: Joi.string().min(2).max(50).messages({
+      "string.min": "First name must be at least 2 characters long",
+      "string.max": "First name cannot exceed 50 characters",
+    }),
+    lastName: Joi.string().min(2).max(50).messages({
+      "string.min": "Last name must be at least 2 characters long",
+      "string.max": "Last name cannot exceed 50 characters",
+    }),
+    email: Joi.string().email().messages({
+      "string.email": "Please provide a valid email address",
+    }),
+  })
+    .min(1)
+    .messages({
+      "object.min": "At least one field must be provided for update",
+    }),
 
   upgradeAccount: Joi.object({
     accountType: Joi.string().valid("premium", "enterprise").required(),

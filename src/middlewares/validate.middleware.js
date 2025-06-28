@@ -17,4 +17,4 @@ const validateMiddleware = (schema) => {
   };
 };
 
-module.exports = validateMiddleware;
+module.exports = { validateMiddleware };
