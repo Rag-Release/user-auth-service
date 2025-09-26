@@ -1,6 +1,41 @@
-const app = require("./webserver/express-app");
+const express = require("express");
+const cors = require("cors");
+const helmet = require("helmet");
+
 const config = require("./config/config");
 const databaseConnection = require("./database/database");
+
+const app = express();
+
+// CORS configuration
+app.use(
+  cors({
+    origin: "*", // Replace with your frontend domain if needed
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
+
+// Security headers
+app.use(helmet());
+
+// JSON parsing
+app.use(express.json());
+
+// Handle preflight requests
+app.options("*", cors());
+
+// Routes
+app.use("/api/auth", require("./routes/authRoutes"));
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: "Internal Server Error" });
+});
+
+module.exports = app;
 
 class Server {
   constructor() {
