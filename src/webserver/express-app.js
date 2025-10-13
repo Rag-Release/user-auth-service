@@ -77,6 +77,7 @@ class ExpressApp {
       origin: (origin, callback) => {
         const allowedOrigins = config.cors.allowedOrigins || [
           "http://localhost:3000",
+          "https://rag-release.netlify.app",
         ];
         if (!origin || allowedOrigins.includes(origin)) {
           callback(null, true);
