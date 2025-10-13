@@ -39,7 +39,11 @@ router.use(verifyToken);
 
 // Admin only routes
 if (boundMethods.getUsers) {
-  router.get("/users", checkRoles(["publisher"]), boundMethods.getUsers);
+  router.get(
+    "/users",
+    // checkRoles(["publisher"]),
+    boundMethods.getUsers
+  );
 }
 
 // User routes

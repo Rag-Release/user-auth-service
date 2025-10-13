@@ -39,6 +39,12 @@ const config = {
     port: process.env.PROD_DB_PORT,
     // use_env_variable: process.env.PROD_DB_URL,
     dialect: "postgres",
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false, // ✅ allows self-signed or proxy certs
+      },
+    },
     logging: false,
     pool: {
       max: 10,

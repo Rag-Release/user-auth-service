@@ -114,14 +114,74 @@ class AuthMiddleware {
   }
 
   /**
+   * Validate user exists and is active
+   */
+  // async validateUser(req, res, next) {
+  //   try {
+  //     // Ensure req and res objects exist
+  //     if (!req || !res) {
+  //       console.error("validateUser: req or res is undefined");
+  //       throw new Error("Request or response object is missing");
+  //     }
+
+  //     // Ensure req.user exists and has an id
+  //     if (!req.user || !req.user.id) {
+  //       return res.status(401).json({
+  //         status: "error",
+  //         message: "Unauthorized: User information is missing",
+  //       });
+  //     }
+
+  //     const userId = req.user.id;
+  //     console.log("🚀 ~ AuthMiddleware ~ validateUser ~ userId:", userId);
+  //     const user = await this.authRepository.findById(userId);
+
+  //     if (!user) {
+  //       return res.status(404).json({
+  //         status: "error",
+  //         message: `User with ID ${userId} not found`,
+  //       });
+  //     }
+
+  //     req.userDetails = user; // Attach user details to the request
+  //     next();
+  //   } catch (error) {
+  //     console.error("Error in validateUser middleware:", error.message);
+  //     if (res && res.status) {
+  //       res.status(500).json({
+  //         status: "error",
+  //         message: error.message || "Internal Server Error",
+  //       });
+  //     } else {
+  //       console.error(
+  //         "validateUser: Unable to send response, res is undefined"
+  //       );
+  //     }
+  //   }
+  // }
+
+  /**
    * Attach user and token info to request
    */
   attachUserToRequest(req, user, token) {
-    // Remove sensitive data
-    const { password, ...safeUser } = user.toJSON();
+    try {
+      // Ensure user is valid
+      if (!user) {
+        throw new Error("User object is undefined or null");
+      }
 
-    req.user = safeUser;
-    req.token = token;
+      // Check if user has a toJSON method
+      const safeUser = typeof user.toJSON === "function" ? user.toJSON() : user;
+
+      // Remove sensitive data
+      const { password, ...filteredUser } = safeUser;
+
+      req.user = filteredUser;
+      req.token = token;
+    } catch (error) {
+      console.error("Error in attachUserToRequest:", error.message);
+      throw new Error("Failed to attach user to request");
+    }
   }
 }
 

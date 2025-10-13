@@ -84,9 +84,6 @@ class DatabaseConnection {
             require: true,
             rejectUnauthorized: false,
           },
-          pool: {
-            handleDisconnects: true,
-          },
         }
       : {};
   }
