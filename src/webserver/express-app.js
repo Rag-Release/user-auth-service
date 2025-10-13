@@ -26,6 +26,31 @@ class ExpressApp {
     this.app.use(express.json({ limit: "10kb" }));
     this.app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
+    // Validate Content-Type header
+    this.app.use((req, res, next) => {
+      if (req.method === "POST" || req.method === "PUT") {
+        const contentType = req.headers["content-type"];
+        if (!contentType || !contentType.includes("application/json")) {
+          return res.status(400).json({
+            status: "error",
+            message: "Content-Type must be application/json",
+          });
+        }
+      }
+      next();
+    });
+
+    // Handle JSON parsing errors
+    this.app.use((err, req, res, next) => {
+      if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
+        return res.status(400).json({
+          status: 400,
+          message: "Invalid JSON payload",
+        });
+      }
+      next();
+    });
+
     // Compression
     this.app.use(compression());
 
@@ -85,7 +110,7 @@ class ExpressApp {
 
   setupRoutes() {
     // API versioning
-    const apiVersion = "/api/v1";
+    const apiVersion = "/api";
 
     // Routes
     this.app.use(`${apiVersion}/auth`, authRoutes);

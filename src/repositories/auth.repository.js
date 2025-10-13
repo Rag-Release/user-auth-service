@@ -104,17 +104,15 @@ class AuthRepository {
     }
   }
 
-  async findById(id) {
+  async findById(userId) {
     try {
-      const user = await this.User.findByPk(id);
-
+      const user = await this.User.findByPk(userId);
       if (!user) {
-        throw new Error("User not found");
+        throw new Error(`User with ID ${userId} not found`);
       }
-
       return user;
     } catch (error) {
-      throw this.handleError("Failed to find user by ID", error);
+      this.handleError(error, "findById");
     }
   }
 
@@ -201,16 +199,9 @@ class AuthRepository {
     return userData;
   }
 
-  handleError(message, error) {
-    if (error.name === "SequelizeUniqueConstraintError") {
-      return new Error("Email already registered");
-    }
-
-    if (error.name === "SequelizeValidationError") {
-      return new Error("Invalid user data");
-    }
-
-    return new Error(message);
+  handleError(error, methodName) {
+    console.error(`Error in AuthRepository.${methodName}:`, error.message);
+    throw new Error(`Failed to ${methodName}: ${error.message}`);
   }
 }
 

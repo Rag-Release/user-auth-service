@@ -30,13 +30,28 @@ class Server {
 
   async connectDatabase() {
     try {
-      await databaseConnection.connect();
+      const db = await databaseConnection.connect();
 
       if (!databaseConnection.isConnected) {
         throw new Error("Database connection failed");
       }
 
-      console.info("✓ Database connected successfully");
+      // Extract database connection details
+      const { host, port, username, database } = db.config;
+      const dbType = db.dialect.name || "Not specified";
+
+      // Log detailed database connection information
+      console.info(`✓ Database Host: ${host}`);
+      // console.info(`✓ Database Port: ${port}`);
+      // console.info(`✓ Database User: ${username}`);
+      console.info(`✓ Database Name: ${database}`);
+      console.info(`✓ Database connected successfully`);
+      // console.info(`✓ Database Type: ${dbType}`);
+      console.info(
+        `✓ Database Environment: ${
+          host.includes("localhost") ? "local" : "hosted"
+        }`
+      );
     } catch (error) {
       throw new Error(`Database connection error: ${error.message}`);
     }
