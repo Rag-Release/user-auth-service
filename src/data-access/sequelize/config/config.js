@@ -37,6 +37,7 @@ const config = {
     database: process.env.PROD_DB_NAME,
     host: process.env.PROD_DB_HOST,
     port: process.env.PROD_DB_PORT,
+    // use_env_variable: process.env.PROD_DB_URL,
     dialect: "postgres",
     logging: false,
     pool: {

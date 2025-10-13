@@ -49,14 +49,24 @@ class ExpressApp {
 
     // CORS configuration
     const corsOptions = {
-      origin: config.cors.allowedOrigins,
-      methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+      origin: (origin, callback) => {
+        const allowedOrigins = config.cors.allowedOrigins;
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization"],
       exposedHeaders: ["Content-Range", "X-Content-Range"],
       credentials: true,
       maxAge: 86400,
     };
     this.app.use(cors(corsOptions));
+
+    // Handle preflight requests
+    this.app.options("*", cors(corsOptions));
 
     // Rate limiting
     const limiter = rateLimit({
@@ -82,9 +92,9 @@ class ExpressApp {
     this.app.use(`${apiVersion}/users`, userRoutes);
     this.app.use(`${apiVersion}/users`, accountUpgradeRoutes);
 
-    // Handle undefined routes
-    this.app.all("*", (req, res, next) => {
-      next(new Error(`Cannot find ${req.originalUrl} on this server!`));
+    // Correctly define the wildcard route to handle unmatched routes
+    this.app.use((req, res) => {
+      res.status(404).json({ error: "Route not found" });
     });
   }
 
