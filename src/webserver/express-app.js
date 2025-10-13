@@ -75,7 +75,9 @@ class ExpressApp {
     // CORS configuration
     const corsOptions = {
       origin: (origin, callback) => {
-        const allowedOrigins = config.cors.allowedOrigins;
+        const allowedOrigins = config.cors.allowedOrigins || [
+          "http://localhost:3000",
+        ];
         if (!origin || allowedOrigins.includes(origin)) {
           callback(null, true);
         } else {
@@ -90,8 +92,8 @@ class ExpressApp {
     };
     this.app.use(cors(corsOptions));
 
-    // Handle preflight requests
-    // this.app.options("*", cors(corsOptions));
+    // Handle preflight requests with a valid wildcard pattern
+    this.app.options(/.*/, cors(corsOptions));
 
     // Rate limiting
     const limiter = rateLimit({
