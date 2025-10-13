@@ -69,6 +69,7 @@ class AuthController {
 
       const result = await this.signInUseCase.execute(email, password);
 
+      // Ensure the response structure matches frontend expectations
       return this.sendSuccessResponse(res, 200, "User logged in successfully", {
         user: this.sanitizeUserData(result.user),
         token: result.token,
