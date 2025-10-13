@@ -66,7 +66,7 @@ class ExpressApp {
     this.app.use(cors(corsOptions));
 
     // Handle preflight requests
-    this.app.options("*", cors(corsOptions));
+    // this.app.options("*", cors(corsOptions));
 
     // Rate limiting
     const limiter = rateLimit({
