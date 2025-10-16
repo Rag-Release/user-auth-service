@@ -7,6 +7,7 @@ class UpdateProfileUseCase {
   static ALLOWED_UPDATE_FIELDS = [
     "firstName",
     "lastName",
+    "role",
     "email",
     "phoneNumbers",
     "homeAddress",

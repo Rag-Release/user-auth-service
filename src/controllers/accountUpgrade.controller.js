@@ -59,54 +59,106 @@ class AccountUpgradeController extends BaseController {
 
   async upgradeAccount(req, res) {
     try {
-      const { userId, newAccountType, paymentDetails } = req.body;
-
-      if (!userId) {
-        throw ValidationError.requiredField("userId");
-      }
-      if (!newAccountType) {
-        throw ValidationError.requiredField("newAccountType");
-      }
-      if (!paymentDetails) {
-        throw ValidationError.requiredField("paymentDetails");
-      }
-
-      const result = await this.accountUpgradeRepository.create(
+      const {
         userId,
-        newAccountType,
-        paymentDetails
-      );
+        newType,
+        organizationName,
+        publishingExperience,
+        portfolioLink,
+        shopName,
+        businessRegistrationNumber,
+        reviewPlatform,
+        genresOfInterest,
+        purposeOfUpgrade,
+        paymentMethod,
+        price,
+        ...additionalInfo
+      } = req.body;
 
-      return this.sendSuccessResponse(
-        res,
-        201,
-        "Account upgrade request sent successfully",
-        { upgrade: result.upgrade }
-      );
-    } catch (error) {
-      if (error instanceof ValidationError) {
-        return this.handleError(res, error);
+      // Log the received data for debugging
+      console.log("Received data:", req.body);
+
+      // Ensure userId and paymentMethod are valid
+      if (!userId || typeof userId !== "string") {
+        throw new ValidationError("Invalid or missing userId");
       }
-      return this.handleError(
-        res,
-        ErrorHandler.internalServer(
-          `Failed to upgrade account: ${error.message}`
-        )
-      );
+      if (!paymentMethod || typeof paymentMethod !== "string") {
+        throw new ValidationError("Invalid or missing paymentMethod");
+      }
+
+      // Validate that the userId is a valid UUID
+      const uuidRegex =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(userId)) {
+        throw new ValidationError("Invalid userId format");
+      }
+
+      // Fetch the user using the userRepository
+      const user = await this.userRepository.findById(userId);
+      if (!user) {
+        throw new ValidationError("User not found");
+      }
+      if (user.role === "admin") {
+        throw new ValidationError("Admin role cannot be upgraded");
+      }
+
+      // Create payment record
+      const paymentRecord = await this.paymentRecordRepository.create({
+        userId,
+        paymentMethod,
+        amount: price,
+        currency: "USD",
+      });
+
+      // Create account upgrade request
+      const accountUpgrade = await this.accountUpgradeRepository.create({
+        userId,
+        previousType: user.role,
+        newType,
+        organizationName,
+        publishingExperience,
+        portfolioLink,
+        shopName,
+        businessRegistrationNumber,
+        reviewPlatform,
+        genresOfInterest,
+        purposeOfUpgrade,
+        paymentId: paymentRecord.id,
+        ...additionalInfo,
+      });
+
+      // Update payment record with account upgrade ID
+      await this.paymentRecordRepository.update(paymentRecord.id, {
+        accountUpgradeId: accountUpgrade.id,
+      });
+
+      res.status(201).json({
+        status: "success",
+        message: "Account upgrade request submitted successfully",
+        data: accountUpgrade,
+      });
+    } catch (error) {
+      console.error("Error in upgradeAccount:", error.message);
+      res.status(500).json({
+        status: "error",
+        message: error.message || "Internal Server Error",
+      });
     }
   }
 
   async getUpgrades(req, res) {
     try {
       const upgrades = await this.accountUpgradeRepository.findAll();
-      return this.sendSuccess(res, { upgrades });
+      res.status(200).json({
+        status: "success",
+        data: upgrades,
+      });
     } catch (error) {
-      return this.handleError(
-        res,
-        ErrorHandler.internalServer(
-          `Failed to fetch upgrades: ${error.message}`
-        )
-      );
+      console.error("Error in getUpgrades:", error.message);
+      res.status(500).json({
+        status: "error",
+        message: error.message || "Internal Server Error",
+      });
     }
   }
 
@@ -183,24 +235,20 @@ class AccountUpgradeController extends BaseController {
       const id = req.params.id;
       const { status } = req.body;
 
-      if (!id) {
-        throw ValidationError.requiredField("id");
-      }
-      if (!status) {
-        throw ValidationError.requiredField("status");
-      }
-
-      const payment = await this.accountUpgradeRepository.updatePaymentStatus(
-        id,
-        status
-      );
-      if (!payment) {
-        throw ErrorHandler.notFound(`Payment with id ${id} not found`);
-      }
-
-      return this.sendSuccess(res, { payment });
+      const paymentRecord = await this.paymentRecordRepository.update(id, {
+        status,
+      });
+      res.status(200).json({
+        status: "success",
+        message: "Payment status updated successfully",
+        data: paymentRecord,
+      });
     } catch (error) {
-      return this.handleError(res, error);
+      console.error("Error in updatePaymentStatus:", error.message);
+      res.status(500).json({
+        status: "error",
+        message: error.message || "Internal Server Error",
+      });
     }
   }
 
@@ -209,24 +257,28 @@ class AccountUpgradeController extends BaseController {
       const id = req.params.id;
       const { status } = req.body;
 
-      if (!id) {
-        throw ValidationError.requiredField("id");
-      }
-      if (!status) {
-        throw ValidationError.requiredField("status");
+      // First, update the status of the upgrade request
+      const updatedUpgrade =
+        await this.accountUpgradeRepository.updateUpgradeStatus(id, status);
+
+      // If the upgrade is accepted, also update the user's role
+      if (status === "accepted" && updatedUpgrade) {
+        await this.userRepository.update(updatedUpgrade.userId, {
+          role: updatedUpgrade.newType,
+        });
       }
 
-      const upgrade = await this.accountUpgradeRepository.updateUpgradeStatus(
-        id,
-        status
-      );
-      if (!upgrade) {
-        throw ErrorHandler.notFound(`Upgrade with id ${id} not found`);
-      }
-
-      return this.sendSuccess(res, { upgrade });
+      res.status(200).json({
+        status: "success",
+        message: "Account upgrade status updated successfully",
+        data: updatedUpgrade,
+      });
     } catch (error) {
-      return this.handleError(res, error);
+      console.error("Error in updateUpgradeStatus:", error.message);
+      res.status(500).json({
+        status: "error",
+        message: error.message || "Internal Server Error",
+      });
     }
   }
 
