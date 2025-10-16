@@ -33,6 +33,9 @@ module.exports = (sequelize, DataTypes) => {
       userId: {
         type: DataTypes.UUID,
         allowNull: false,
+        validate: {
+          isUUID: 4, // Ensure userId is a valid UUID
+        },
         field: "userId",
         references: {
           model: "Users",
@@ -42,6 +45,9 @@ module.exports = (sequelize, DataTypes) => {
       paymentId: {
         type: DataTypes.UUID,
         allowNull: true,
+        validate: {
+          isUUID: 4, // Ensure paymentId is a valid UUID
+        },
         references: {
           model: "PaymentRecords",
           key: "id",
@@ -75,6 +81,42 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: DataTypes.NOW,
         field: "updatedAt",
+      },
+      additionalInfo: {
+        type: DataTypes.JSON,
+        allowNull: true,
+      },
+      organizationName: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      publishingExperience: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      portfolioLink: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      shopName: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      businessRegistrationNumber: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      purposeOfUpgrade: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      reviewPlatform: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      genresOfInterest: {
+        type: DataTypes.STRING,
+        allowNull: true,
       },
     },
     {

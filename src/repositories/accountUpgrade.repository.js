@@ -11,46 +11,41 @@ class AccountUpgradeRepository {
     this.PaymentRecordRepository = new PaymentRecordRepository();
   }
 
-  async create(userId, newAccountType, paymentDetails) {
-    const user = await this.UserRepository.findById(userId);
-
-    if (!user) {
-      throw new Error("User  not found");
-    }
+  async create(data) {
+    const {
+      userId,
+      previousType,
+      newType,
+      organizationName,
+      publishingExperience,
+      portfolioLink,
+      shopName,
+      businessRegistrationNumber,
+      reviewPlatform,
+      genresOfInterest,
+      purposeOfUpgrade,
+      paymentId,
+      ...additionalInfo
+    } = data;
 
     try {
-      const paymentRecord = await this.PaymentRecordRepository.create({
-        userId,
-        paymentMethod: paymentDetails.paymentMethod,
-        amount: paymentDetails.amount,
-        currency: paymentDetails.currency,
-      });
-
-      const accountUpgradeData = {
-        userId,
-        previousType: user.role,
-        newType: newAccountType,
-        paymentId: paymentRecord.id,
-        status: "pending",
-      };
-
       const accountUpgrade = await this.AccountUpgrade.create({
         userId,
-        previousType: user.role,
-        newType: newAccountType,
-        paymentId: paymentRecord.id,
-        status: "pending",
+        previousType,
+        newType,
+        paymentId,
+        organizationName,
+        publishingExperience,
+        portfolioLink,
+        shopName,
+        businessRegistrationNumber,
+        reviewPlatform,
+        genresOfInterest,
+        purposeOfUpgrade,
+        ...additionalInfo,
       });
 
-      await this.PaymentRecordRepository.updateAccountUpgradeId(
-        paymentRecord.id,
-        { accountUpgradeId: accountUpgrade.id }
-      );
-
-      return {
-        upgrade: accountUpgrade,
-        payment: paymentRecord,
-      };
+      return accountUpgrade.toJSON();
     } catch (error) {
       throw new Error(`Account upgrade failed: ${error.message}`);
     }
@@ -84,6 +79,10 @@ class AccountUpgradeRepository {
   }
 
   async findById(id) {
+    if (!id || typeof id !== "string") {
+      throw new Error("Invalid or missing id for findById");
+    }
+
     const result = await this.AccountUpgrade.findByPk(id, {
       include: [
         {

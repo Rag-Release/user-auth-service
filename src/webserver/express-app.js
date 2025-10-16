@@ -5,7 +5,13 @@ const compression = require("compression");
 const rateLimit = require("express-rate-limit");
 const morgan = require("morgan");
 
-const { authRoutes, userRoutes, accountUpgradeRoutes } = require("./routes");
+const {
+  authRoutes,
+  userRoutes,
+  accountUpgradeRoutes,
+  bookRoutes,
+  coverDesignRoutes,
+} = require("./routes");
 const {
   globalErrorMiddleware,
 } = require("../middlewares/globalError.middleware");
@@ -119,6 +125,8 @@ class ExpressApp {
     this.app.use(`${apiVersion}/auth`, authRoutes);
     this.app.use(`${apiVersion}/users`, userRoutes);
     this.app.use(`${apiVersion}/users`, accountUpgradeRoutes);
+    this.app.use(`${apiVersion}/books`, bookRoutes);
+    this.app.use(`${apiVersion}/cover-designs`, coverDesignRoutes);
 
     // Correctly define the wildcard route to handle unmatched routes
     this.app.use((req, res) => {

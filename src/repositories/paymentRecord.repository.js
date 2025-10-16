@@ -6,7 +6,34 @@ class PaymentRecordRepository {
   }
 
   async create(paymentData) {
-    return await this.PaymentRecord.create(paymentData);
+    const { userId, paymentMethod, amount, currency } = paymentData;
+
+    // Validate required fields
+    if (!userId || typeof userId !== "string") {
+      throw new Error("Invalid or missing userId");
+    }
+    if (!paymentMethod || typeof paymentMethod !== "string") {
+      throw new Error("Invalid or missing paymentMethod");
+    }
+    if (!amount || typeof amount !== "number") {
+      throw new Error("Invalid or missing amount");
+    }
+    if (!currency || typeof currency !== "string") {
+      throw new Error("Invalid or missing currency");
+    }
+
+    try {
+      const paymentRecord = await this.PaymentRecord.create({
+        userId,
+        paymentMethod,
+        amount,
+        currency,
+        status: "pending",
+      });
+      return paymentRecord.toJSON();
+    } catch (error) {
+      throw new Error(`Failed to create payment record: ${error.message}`);
+    }
   }
 
   async findAll(options = {}) {

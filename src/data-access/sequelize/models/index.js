@@ -63,6 +63,10 @@ fs.readdirSync(__dirname)
     db[model.name] = model;
   });
 
+// Import and associate CoverDesign model
+const CoverDesign = require("./coverdesign")(sequelize, Sequelize.DataTypes);
+db.CoverDesign = CoverDesign;
+
 // Initialize associations (if any)
 Object.keys(db).forEach((modelName) => {
   if (db[modelName].associate) {

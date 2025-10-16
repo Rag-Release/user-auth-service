@@ -6,7 +6,7 @@ const {
   PaymentRecordRepository,
   AccountUpgradeRepository,
 } = require("../../repositories/index");
-const { verifyToken } = require("../../middlewares");
+const { verifyToken, checkRoles } = require("../../middlewares");
 
 let accountUpgradeController;
 try {
@@ -49,22 +49,20 @@ const boundMethods = {
   ),
 };
 
-router.use(verifyToken);
+// Middleware to verify token
+// router.use(verifyToken);
 
+// User routes
 router.post("/upgrades", boundMethods.upgradeAccount);
-
-router.get("/upgrades", boundMethods.getUpgrades);
-
 router.get("/upgrades/users/:id", boundMethods.getUserUpgrades);
 
+// Admin routes
+router.use(checkRoles(["admin"])); // Restrict the following routes to admin only
+router.get("/upgrades", boundMethods.getUpgrades);
 router.get("/upgrades/:id", boundMethods.getUpgradesById);
-
 router.get("/upgrade-payments", boundMethods.getUpgradesPayments);
-
 router.get("/upgrades/payments/:id", boundMethods.getUpgradesPaymentsById);
-
 router.patch("/upgrades/payments/:id", boundMethods.updatePaymentStatus);
-
 router.patch("/upgrades/:id", boundMethods.updateUpgradeStatus);
 
 module.exports = router;
