@@ -4,6 +4,16 @@ module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
       // Define associations here
+      User.hasMany(models.CoverDesign, {
+        foreignKey: "authorId",
+        as: "coverDesigns",
+        onDelete: "CASCADE",
+      });
+      User.hasOne(models.CoverDesign, {
+        foreignKey: "assignedDesignerId",
+        as: "coverDesign",
+        onDelete: "CASCADE",
+      });
     }
   }
 
@@ -32,6 +42,7 @@ module.exports = (sequelize, DataTypes) => {
       role: {
         type: DataTypes.ENUM(
           "common",
+          "admin",
           "reader",
           "author",
           "reviewer",
@@ -93,6 +104,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "User",
+      tableName: "Users",
+      timestamps: true,
     }
   );
 

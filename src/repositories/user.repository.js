@@ -23,8 +23,17 @@ class UserRepository {
     }
   }
 
-  async findById(id) {
-    return this.User.findByPk(id);
+  async findById(userId) {
+    // Log the userId for debugging
+    console.log("Finding user by ID:", userId);
+
+    if (!userId || typeof userId !== "string") {
+      throw new Error("Invalid or missing userId");
+    }
+
+    // Use Sequelize's findByPk method to fetch the user
+    const user = await this.User.findByPk(userId);
+    return user ? user.toJSON() : null;
   }
 
   async findAll() {
