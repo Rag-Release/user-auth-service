@@ -3,7 +3,11 @@ const {
   UpdateProfileUseCase,
   AccountUpgradeUseCase,
 } = require("../use-cases/user");
-const ErrorHandler = require("../shared/utils/ErrorHandler");
+const {
+  ErrorHandler,
+  UnauthorizedError,
+  ForbiddenError,
+} = require("../shared/utils/ErrorHandler");
 
 class UserController extends BaseController {
   constructor(dependencies) {
@@ -54,6 +58,15 @@ class UserController extends BaseController {
   async updateProfile(req, res) {
     const { id } = req.params;
     const updateData = req.body;
+
+    // Security Check: Only admins can update a user's role.
+    if (updateData.role) {
+      if (!req.user || req.user.role !== "admin") {
+        throw new ForbiddenError(
+          "You are not authorized to change user roles."
+        );
+      }
+    }
 
     const updatedUser = await this.updateProfileUseCase.execute(id, updateData);
 
